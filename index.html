@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Ash | Python Developer Portfolio</title>
+    <style>
+        /* --- MODERN COLOR PALETTE --- */
+        :root {
+            --primary-bg: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --accent-yellow: #ffc107;
+            --text-white: #ffffff;
+            --text-gray: #b0b0b0;
+            --nav-bg: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--primary-bg);
+            color: var(--text-white);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Header / Nav */
+        header {
+            background-color: var(--nav-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-yellow);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-white);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--accent-yellow); }
+
+        /* Main Container (The Book) */
+        .book-container {
+            width: 90%;
+            max-width: 900px;
+            height: 650px;
+            margin: 50px auto;
+            position: relative;
+            perspective: 1500px; /* Essential for 3D effect */
+        }
+
+        /* The Page Style */
+        .page {
+            width: 100%;
+            height: 100%;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 40px;
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            
+            /* Animation Logic */
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+            
+            /* Hide backface so pages underneath show through */
+            backface-visibility: hidden; 
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Stacking Order (Z-Index) */
+        /* We set these dynamically with JS, but defaults help */
+        .page:nth-child(1) { z-index: 7; }
+        .page:nth-child(2) { z-index: 6; }
+        .page:nth-child(3) { z-index: 5; }
+        .page:nth-child(4) { z-index: 4; }
+        .page:nth-child(5) { z-index: 3; }
+        .page:nth-child(6) { z-index: 2; }
+        .page:nth-child(7) { z-index: 1; }
+
+        /* Animation Classes */
+        .page.flipped {
+            transform: rotateY(-180deg);
+            pointer-events: none; /* Can't click buttons on flipped pages */
+        }
+
+        /* Typography */
+        h1, h2 { color: var(--accent-yellow); margin-bottom: 15px; }
+        p { color: var(--text-gray); margin-bottom: 25px; font-size: 1.1rem; line-height: 1.6; }
+
+        /* Profile Image */
+        .profile-img {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 4px solid var(--accent-yellow);
+            object-fit: cover;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Tags */
+        .tag-container { margin-bottom: 20px; }
+        .tag {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: var(--accent-yellow);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin: 0 5px;
+            display: inline-block;
+            border: 1px solid var(--accent-yellow);
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: var(--accent-yellow);
+            color: #000;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s, background-color 0.2s;
+            margin: 10px;
+        }
+        .btn:hover { background-color: #ffdb4d; transform: scale(1.05); }
+        
+        .btn-github {
+            background-color: #24292e; 
+            color: white; 
+            border: 1px solid #555;
+        }
+        .btn-github:hover { background-color: #333; color: white; }
+
+        .nav-btn {
+            position: absolute;
+            bottom: 40px;
+            width: 150px;
+        }
+        .prev-btn { left: 40px; background-color: #444; color: white; }
+        .next-btn { right: 40px; }
+
+        /* QR Code Fix */
+        .qr-img { width: 140px; border-radius: 8px; margin-top: 10px; border: 2px solid var(--accent-yellow); }
+
+        /* Contact Section */
+        .social-links a {
+            display: inline-block;
+            margin: 10px;
+            color: var(--accent-yellow);
+            font-size: 1.2rem;
+            text-decoration: none;
+            border-bottom: 1px dashed var(--accent-yellow);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">Deep Ash</a>
+        <div class="nav-links">
+            <a href="#" onclick="resetBook()">Home</a>
+            <a href="https://github.com/Deepashprojects" target="_blank">GitHub Profile</a>
+        </div>
+    </header>
+
+    <div class="book-container">
+
+        <!-- PAGE 1: INTRO -->
+        <div class="page" id="p1">
+            <img src="11.jpg" alt="Deep Ash" class="profile-img">
+            <h1>Hi, I'm Deep Ash</h1>
+            <p>
+                An aspiring <b>AI Engineer & Data Scientist</b>.<br>
+                Currently pursuing MCA (2025) & working at PATEL G Tech LLP.
+            </p>
+            <p>
+                I build <b>Automation Scripts, Data Pipelines, and Creative Tools</b>.<br>
+                Flip the page to explore my 6 Python Projects.
+            </p>
+            <button class="btn next-btn" onclick="flipPage(1)">Start Tour ➡️</button>
+        </div>
+
+        <!-- PAGE 2: AUTOMATION -->
+        <div class="page" id="p2">
+            <h2>📂 Project 1: File Organizer</h2>
+            <div class="tag-container">
+                <span class="tag">Automation</span>
+                <span class="tag">OS / Shutil</span>
+            </div>
+            <p><b>Problem:</b> My Downloads folder was chaos.<br>
+            <b>Solution:</b> A Python script that instantly sorts thousands of files into clean folders (Images, Docs, Software) based on extensions.</p>
+            
+            <a href="https://github.com/Deepashprojects/Python-Automation-Scripts" target="_blank" class="btn btn-github">View Code</a>
+
+            <button class="btn prev-btn" onclick="flipPage(0)">⬅️ Back</button>
+            <button class="btn next-btn" onclick="flipPage(2)">Next Project ➡️</button>
+        </div>
+
+        <!-- PAGE 3: DATA SCIENCE -->
+        <div class="page" id="p3">
+            <h2>📊 Project 2: WhatsApp Analyzer</h2>
+            <div class="tag-container">
+                <span class="tag">Data Science</span>
+                <span class="tag">Pandas & NLP</span>
+            </div>
+            <p><b>Goal:</b> Unlocking insights from social data.<br>
+            <b>Tech:</b> I built an NLP pipeline to parse chat logs, analyze activity trends, and visualize "Top Speakers" & "Most Used Words" using Matplotlib.</p>
+            
+            <a href="https://github.com/Deepashprojects/WhatsApp-Chat-Analyzer" target="_blank" class="btn btn-github">View Code</a>
+
+            <button class="btn prev-btn" onclick="flipPage(1)">⬅️ Back</button>
+            <button class="btn next-btn" onclick="flipPage(3)">Next Project ➡️</button>
+        </div>
+
+        <!-- PAGE 4: TOOLS -->
+        <div class="page" id="p4">
+            <h2>🎨 Project 3: QR Generator</h2>
+            <div class="tag-container">
+                <span class="tag">Tool Building</span>
+                <span class="tag">Image Processing</span>
+            </div>
+            <p>A tool for creating branded marketing assets. It generates custom QR codes with rounded pixels, color gradients, and embedded professional text captions using Pillow.</p>
+            
+            <img src="professional_qr.png" alt="QR Code" class="qr-img">
+            
+            <a href="https://github.com/Deepashprojects/Python-QR-Tools" target="_blank" class="btn btn-github">View Code</a>
+
+            <button class="btn prev-btn" onclick="flipPage(2)">⬅️ Back</button>
+            <button class="btn next-btn" onclick="flipPage(4)">Next Project ➡️</button>
+        </div>
+
+        <!-- PAGE 5: API -->
+        <div class="page" id="p5">
+            <h2>📈 Project 4: Crypto Tracker</h2>
+            <div class="tag-container">
+                <span class="tag">REST APIs</span><span class="tag">Real-Time</span>
+            </div>
+            <p>A live financial monitoring bot. It polls the CoinGecko API every 10 seconds for Bitcoin prices and triggers instant "BUY/SELL" alerts based on custom thresholds.</p>
+            
+            <a href="https://github.com/Deepashprojects/Python-Crypto-Tracker" target="_blank" class="btn btn-github">View Code</a>
+
+            <button class="btn prev-btn" onclick="flipPage(3)">⬅️ Back</button>
+            <button class="btn next-btn" onclick="flipPage(5)">Next Project ➡️</button>
+        </div>
+
+        <!-- PAGE 6: CREATIVITY -->
+        <div class="page" id="p6">
+            <h2>🎤 Project 5: LyricalPy</h2>
+            <div class="tag-container">
+                <span class="tag">Multimedia</span><span class="tag">Logic</span>
+            </div>
+            <p>A terminal-based Karaoke player. It syncs local MP3 playback with a "typewriter" lyric animation using precision time delays to match the song's tempo.</p>
+            
+            <a href="https://github.com/Deepashprojects/Python-Terminal-Karaoke" target="_blank" class="btn btn-github">View Code</a>
+
+            <button class="btn prev-btn" onclick="flipPage(4)">⬅️ Back</button>
+            <button class="btn next-btn" onclick="flipPage(6)">Next Project ➡️</button>
+        </div>
+
+        <!-- PAGE 7: FINAL -->
+        <div class="page" id="p7">
+            <h2>🎧 Project 6: AudioBook Reader</h2>
+            <div class="tag-container">
+                <span class="tag">Accessibility</span><span class="tag">Text-to-Speech</span>
+            </div>
+            <p>An intelligent document converter. It extracts text from PDF resumes or books and reads them aloud using an offline speech synthesis engine (pyttsx3).</p>
+            
+            <a href="https://github.com/Deepashprojects/Python-PDF-AudioBook" target="_blank" class="btn btn-github">View Code</a>
+
+            <hr style="width: 50%; border-color: #444; margin: 20px auto;">
+            
+            <h3>Let's Connect!</h3>
+            <div class="social-links">
+                <a href="mailto:deepash5944@gmail.com">📧 Email Me</a>
+                <a href="https://linkedin.com/in/yourprofile">💼 LinkedIn</a>
+            </div>
+
+            <button class="btn prev-btn" onclick="flipPage(5)">⬅️ Back</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Page Flipping Logic
+        let currentPage = 0;
+        const pages = document.querySelectorAll('.page');
+
+        function flipPage(pageIndex) {
+            // If going forward (e.g. clicking Next on Page 1 to go to Page 2)
+            // We need to flip Page 1 (index 0)
+            
+            if (pageIndex > currentPage) {
+                // Moving Forward: Flip the current page
+                pages[currentPage].classList.add('flipped');
+                currentPage = pageIndex;
+            } else {
+                // Moving Backward: Unflip the previous page
+                // The pageIndex passed is the one we want to SEE.
+                // So we unflip that page.
+                pages[pageIndex].classList.remove('flipped');
+                currentPage = pageIndex;
+            }
+        }
+
+        function resetBook() {
+            pages.forEach(page => {
+                page.classList.remove('flipped');
+            });
+            currentPage = 0;
+        }
+    </script>
+
+</body>
+</html>
